@@ -20,40 +20,40 @@ host = socket.gethostbyname(socket.gethostname())
 port = 9999                                          
 serversocket.bind((host, port)) 
 
-########### SSH pi in the rotor
-# PARAMETERS 
-SSH_ADDRESS = "thesis"
-SSH_USERNAME = "pi"
-SSH_PASSWORD = "thesis"
-SSH_COMMAND = "python ~/raspberry_rotor/client_rotor_1_csv.py "+socket.gethostbyname(socket.gethostname())
-#SSH creation
-ssh = paramiko.SSHClient()
-ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-ssh_stdin = ssh_stdout = ssh_stderr = None
-# Order 
-try:
-    ssh.connect(SSH_ADDRESS, username=SSH_USERNAME, password=SSH_PASSWORD)
-    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(SSH_COMMAND)
-except Exception as e:
-    sys.stderr.write("SSH connection error: {0}".format(e))
-    print('ssh error')
-############# SSH pi in the estator
-# PARAMETERS
-SSH_ADDRESS2 = "thesis2"
-SSH_USERNAME2 = "pi"
-SSH_PASSWORD2 = "thesis2"
-SSH_COMMAND2 = "python ~/raspberry_stator/client_stator_1_csv.py "+socket.gethostbyname(socket.gethostname())
-# SSH creation
-ssh2 = paramiko.SSHClient()
-ssh2.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-ssh_stdin = ssh_stdout = ssh_stderr = None
- #Order
-try:
-    ssh2.connect(SSH_ADDRESS2, username=SSH_USERNAME2, password=SSH_PASSWORD2)
-    ssh_stdin, ssh_stdout, ssh_stderr = ssh2.exec_command(SSH_COMMAND2)
-except Exception as e:
-    sys.stderr.write("SSH connection error: {0}".format(e))
-    print('ssh error')
+# ########### SSH pi in the rotor
+# # PARAMETERS 
+# SSH_ADDRESS = "thesis"
+# SSH_USERNAME = "pi"
+# SSH_PASSWORD = "thesis"
+# SSH_COMMAND = "python ~/raspberry_rotor/rotor5.py "+socket.gethostbyname(socket.gethostname())
+# #SSH creation
+# ssh = paramiko.SSHClient()
+# ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+# ssh_stdin = ssh_stdout = ssh_stderr = None
+# # Order 
+# try:
+#     ssh.connect(SSH_ADDRESS, username=SSH_USERNAME, password=SSH_PASSWORD)
+#     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(SSH_COMMAND)
+# except Exception as e:
+#     sys.stderr.write("SSH connection error: {0}".format(e))
+#     print('ssh error')
+# ############# SSH pi in the estator
+# # PARAMETERS
+# SSH_ADDRESS2 = "thesis2"
+# SSH_USERNAME2 = "pi"
+# SSH_PASSWORD2 = "thesis2"
+# SSH_COMMAND2 = "python ~/raspberry_stator/stator5.py "+socket.gethostbyname(socket.gethostname())
+# # SSH creation
+# ssh2 = paramiko.SSHClient()
+# ssh2.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+# ssh_stdin = ssh_stdout = ssh_stderr = None
+#  #Order
+# try:
+#     ssh2.connect(SSH_ADDRESS2, username=SSH_USERNAME2, password=SSH_PASSWORD2)
+#     ssh_stdin, ssh_stdout, ssh_stderr = ssh2.exec_command(SSH_COMMAND2)
+# except Exception as e:
+#     sys.stderr.write("SSH connection error: {0}".format(e))
+#     print('ssh error')
 
 
 # queue up to the 2 requests
@@ -84,6 +84,8 @@ def threaded_server():
         load_sensor_s = json.loads(data_sensor_sj.decode())
         cal_r=load_sensor_r.get("adc_values_r_cal")
         cal_s=load_sensor_s.get("adc_values_s_cal")
+        print(cal_r)
+        print(cal_s)
         data_send_r = json.dumps({"act_values_r": data_actuation_r})
         data_send_s = json.dumps({"act_values_s": data_actuation_s})
         r_socket.send(data_send_r.encode())
@@ -94,8 +96,11 @@ def threaded_server():
             i=i+1
             t1=time.time()
             ### SENSING
-            data_sensor_rj = r_socket.recv(4096)
-            data_sensor_sj = s_socket.recv(4096)
+            #tcom=time.time()
+            data_sensor_sj = s_socket.recv(1024)
+            print(data_sensor_rj)
+            data_sensor_rj = r_socket.recv(1024)
+            print(data_sensor_sj)
             load_sensor_r = json.loads(data_sensor_rj.decode())
             load_sensor_s = json.loads(data_sensor_sj.decode())
             data_sensor_r=load_sensor_r.get("adc_values_r")
@@ -107,10 +112,10 @@ def threaded_server():
                 else:
                     states_nc[k]=data_sensor_s[k-4]
                     states[k]=states_nc[k]-cal_s[k-4]
-                states[k] = states[k]*4.096/32768
+                states[k] = states[k]*4.096/2048
                 states[k] = states[k]*1.5/2
             state_vector.extend(states)
-            print(states)
+            #print(states)
             #### ACTUATING
             ### Control computation
             for p in range(4):
@@ -156,6 +161,8 @@ def threaded_server():
                 writer = csv.writer(f)
                 writer.writerows(state_data)
         print(state_data)
+        print(tnext/n_samples)
+
 # Put the server in a thread
 threads=[]
 for i in range(1):
