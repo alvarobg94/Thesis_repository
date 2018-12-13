@@ -128,7 +128,6 @@ def threaded_server():
             r_socket.send(data_send_r.encode())
             s_socket.send(data_send_s.encode())
             t2=time.time()-t1
-            print(t2)
             tnext=tnext+t2
             time_series.append(tnext)   
             
@@ -158,7 +157,7 @@ def threaded_server():
         with open('data_vector.csv', 'w') as f:
                 writer = csv.writer(f)
                 writer.writerows(state_data)
-        
+
         print(state_data)
         print(tnext/n_samples)
 # Put the server in a thread
