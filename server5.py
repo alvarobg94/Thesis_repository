@@ -59,7 +59,8 @@ except Exception as e:
 
 # queue up to the 2 requests
 serversocket.listen(2)  
-
+t2=0
+t2a=0
 
                                          
 def threaded_server():
@@ -126,7 +127,10 @@ def threaded_server():
             data_send_s = json.dumps({"act_values_s": data_actuation_s})
             r_socket.send(data_send_r.encode())
             s_socket.send(data_send_s.encode())
+            t2a=t2
             t2=time.time()-t1
+            if t2==0:
+                t2=t2a
             tnext=tnext+t2
             time_series.append(tnext)   
             
