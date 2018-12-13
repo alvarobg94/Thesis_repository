@@ -59,12 +59,13 @@ except Exception as e:
 
 # queue up to the 2 requests
 serversocket.listen(2)  
-t2=0
-t2a=0
 
                                          
 def threaded_server():
     i=0
+    t2=0
+    t2a=0
+
     global data_arr
     while c_flag:
         data_actuation_s=[0]*4
@@ -131,6 +132,7 @@ def threaded_server():
             t2=time.time()-t1
             if t2==0:
                 t2=t2a
+            print(t2)
             tnext=tnext+t2
             time_series.append(tnext)   
             
@@ -160,6 +162,7 @@ def threaded_server():
         with open('data_vector.csv', 'w') as f:
                 writer = csv.writer(f)
                 writer.writerows(state_data)
+
         print(state_data)
         print(tnext/n_samples)
 

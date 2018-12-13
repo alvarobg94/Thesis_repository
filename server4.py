@@ -158,6 +158,7 @@ def threaded_server():
         with open('data_vector.csv', 'w') as f:
                 writer = csv.writer(f)
                 writer.writerows(state_data)
+        
         print(state_data)
         print(tnext/n_samples)
 # Put the server in a thread
