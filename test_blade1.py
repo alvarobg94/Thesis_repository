@@ -45,6 +45,7 @@ GAIN = 1
 tnext=0
 t=[]
 d=[]
+v=[]
 i=0
 adc.start_adc(0, gain=GAIN)
 th = threading.Thread(name=str(i),target=threaded_User)
@@ -58,15 +59,17 @@ while c_flag:
     value=value*4.096/2048
     value=value*1.5/2
     magnet1r.ChangeDutyCycle(dc)
+    volt=dc/5
     time.sleep(0.001)
     t2=time.time()-t1
     tnext=tnext+t2
+    v.append(volt)
     t.append(tnext)
     d.append(value)
 adc.stop_adc()
 print("loop finished, writing csv")   
 # Stop continuous conversion.  After this point you can't get data from get_last_result!
-b=zip(t,d)
+b=zip(t,v,d)
 with open('test.csv', 'w') as f:
     writer = csv.writer(f)
     writer.writerows(b)
