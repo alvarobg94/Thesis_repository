@@ -48,6 +48,8 @@ while c_flag:
     t1=time.time()
     i=i+1# Read the last ADC conversion value and print it out.
     value =adc.get_last_result()
+    value=value*4.096/2048
+    value=value*1.5/2
     time.sleep(0.005)
     t2=time.time()-t1
     tnext=tnext+t2
