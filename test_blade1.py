@@ -3,14 +3,16 @@ import threading
 import RPi.GPIO as GPIO
 import Adafruit_ADS1x15
 import csv
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 global c_flag
+global dc
+dc=0
 c_flag=1
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
-GPIO ports to control the magnets, set them as output information
+#GPIO ports to control the magnets, set them as output information
 GPIO.setup(14,GPIO.OUT)
 GPIO.setup(15,GPIO.OUT)
 magnet1r =GPIO.PWM(14,10000)
@@ -24,13 +26,18 @@ magnet1l.start(0)
 adc = Adafruit_ADS1x15.ADS1015()
 
 def threaded_User():
+	global dc
 	global c_flag
 	while c_flag:
 		command=raw_input("Introduce your command")
 		print("your command is "+command)
 		if(command=="s"): 
 			c_flag=0
-			
+		if(command=="a"): 
+			dc=100
+		if(command=="n"): 
+			dc=0
+		
 
 
 
@@ -50,7 +57,8 @@ while c_flag:
     value =adc.get_last_result()
     value=value*4.096/2048
     value=value*1.5/2
-    time.sleep(0.005)
+    magnet1r.ChangeDutyCycle(dc)
+    time.sleep(0.001)
     t2=time.time()-t1
     tnext=tnext+t2
     t.append(tnext)
@@ -65,6 +73,6 @@ with open('test.csv', 'w') as f:
 f.close()
 print("all done, csv generated")
 
-plt.plot(t,d)
-plt.show()
+#plt.plot(t,d)
+#plt.show()
 
